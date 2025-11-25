@@ -311,7 +311,7 @@ def main():
         right: 25px;
     }
 </style>
-<img src="Colibri.png" class="header-img">
+<img src="colibri.png" class="header-img">
 
 """, unsafe_allow_html=True)
 
@@ -589,5 +589,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
