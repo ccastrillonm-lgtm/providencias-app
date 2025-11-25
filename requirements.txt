@@ -1,0 +1,9 @@
+streamlit
+pandas
+pymongo
+neo4j
+qdrant-client==1.16.0
+sentence-transformers
+pyvis
+matplotlib
+reportlab
