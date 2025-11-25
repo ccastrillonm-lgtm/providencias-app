@@ -311,7 +311,8 @@ def main():
         right: 25px;
     }
 </style>
-<img src="Colobri.png" class="header-img">
+<img src="Colibri.png" class="header-img">
+
 """, unsafe_allow_html=True)
 
     st.title("Explorador de Providencias")
@@ -588,4 +589,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
