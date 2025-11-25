@@ -292,9 +292,11 @@ def generar_pdf(data):
 
 def main():
     st.set_page_config(page_title="Consulta Providencias",
+                       page_icon="colibri.png",
                        layout="wide")
 
     st.markdown("""
+
 <style>
     [data-testid="stSidebar"] {
         background-color: #1f2957;
@@ -305,15 +307,19 @@ def main():
     .stRadio > label, .stRadio div label {
         color: white !important;
     }
-    .header-img {
-        position: absolute;
-        top: 10px;
-        right: 25px;
-    }
+    .header-img-container {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    z-index: 9999;
+}
 </style>
-<img src="colibri.png" class="header-img">
-
 """, unsafe_allow_html=True)
+
+        # El contenedor flotante
+    st.markdown('<div class="header-img-container">', unsafe_allow_html=True)
+    st.image("colibri.png", width=180)
+    st.markdown('</div>', unsafe_allow_html=True)
 
     st.title("Explorador de Providencias")
 
@@ -589,6 +595,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
