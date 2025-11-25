@@ -7,3 +7,6 @@ sentence-transformers
 pyvis
 matplotlib
 reportlab
+networkx
+numpy
+
