@@ -473,6 +473,7 @@ def main():
         if st.button("Buscar"):
             with st.spinner("Consultando en MongoDB..."):
                 resultados, mensaje = consulta_palabra(palabra)
+                st.text(mensaje)
 
             if not resultados:
                 st.text(mensaje)
@@ -595,3 +596,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
