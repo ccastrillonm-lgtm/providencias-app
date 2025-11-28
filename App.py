@@ -56,6 +56,7 @@ def get_neo4j_driver():
 @st.cache_resource
 def get_qdrant_client():
     client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_KEY)
+
     return client
 
 
@@ -207,61 +208,66 @@ def grafo_similitud_nx(driver, providencia, threshold=0):
 #        funciones Qdrant          #
 # ================================ #
 
-def preguntar_qdrant(texto_consulta: str,
-                     limite: int = 5,
-                     collection_name: str = "providencias"):
-
+def preguntar_qdrant(
+        texto_consulta: str,
+        limite: int = 5,
+        collection_name: str = "providencias",
+        score_threshold: float = 0.3
+    ):
     try:
-        # 1. Embedding del texto de consulta
+    # generar embedding de la consulta
         embedding = embedder.encode(
             texto_consulta,
             convert_to_numpy=True
         )
 
-        # 2. Búsqueda en Qdrant (API correcta v1.16+)
+        # buscar en Qdrant
         resultados = qdrant.query_points(
             collection_name=collection_name,
             query=embedding,
-            limit=limite
+            limit=limite,
+        
         )
 
+    
         if not resultados.points:
+            print(" No hubo coincidencias")
             return []
+    
+    
+        print(f"\n Consulta: '{texto_consulta}'\n")
+        print(" Resultados:")
 
-        salida = []
-
-        # 3. Recorrer resultados
         for r in resultados.points:
-
-            payload = r.payload
+            prov = r.payload.get("providencia")
+            tipo = r.payload.get("tipo")
+            anio = r.payload.get("anio")
             score = r.score
 
-            prov = payload.get("providencia")
-            tipo = payload.get("tipo")
-            anio = payload.get("anio")
+        resultados = [p for p in resultados.points if p.score >= score_threshold]
 
-            # 4. Traer texto desde Mongo
-            doc_mongo = mongo_obtener_completo(prov)
+        doc_mongo = mongo_obtener_completo(prov)
 
-            if doc_mongo and "texto" in doc_mongo:
-                preview = doc_mongo["texto"][:250] + "..."
-            else:
-                preview = "(Sin texto disponible)"
-
-            # 5. Armar resultado limpio para Streamlit
-            salida.append({
+        if doc_mongo and "texto" in doc_mongo:
+            preview = doc_mongo["texto"][:250] + "..."
+        else:
+            preview = "(Sin texto disponible)"
+    
+        salida = []
+           
+        salida.append({
                 "providencia": prov,
                 "tipo": tipo,
                 "anio": anio,
                 "score": score,
                 "preview_texto": preview
-            })
+                })
 
         return salida
 
     except Exception as e:
         print("ERROR Qdrant:", e)
-        return []
+    return []
 
 
 # ============ Generar PDF ============
@@ -309,8 +315,8 @@ def main():
     }
     .header-img-container {
     position: absolute;
-    top: 20px;
-    right: 30px;
+    top: 10px;
+    right: 4000px;
     z-index: 9999;
 }
 </style>
@@ -345,7 +351,7 @@ def main():
             "Búsqueda semántica"
         ])
 
-    # >>> NUEVO: reseteo de estado al cambiar de opción <<<
+    
     if st.session_state.ultima_opcion != opcion:
         st.session_state.modo_detalle = False
         st.session_state.full_doc = None
@@ -474,7 +480,6 @@ def main():
             with st.spinner("Consultando en MongoDB..."):
                 resultados, mensaje = consulta_palabra(palabra)
                 st.text(mensaje)
-
             if not resultados:
                 st.text(mensaje)
                 st.warning("No hay coincidencias.")
@@ -561,10 +566,10 @@ def main():
                 st.info("Qdrant no devolvió resultados.")
                 return
 
-            # Convertir resultados en DataFrame directo
+            
             df = pd.DataFrame(resultados)
 
-            # Mostrar tabla con vista previa incluida
+            
             st.dataframe(df, use_container_width=True)
 
             # --- Acciones por cada resultado ---
@@ -596,4 +601,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
