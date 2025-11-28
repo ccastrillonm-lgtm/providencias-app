@@ -112,6 +112,7 @@ def consulta_tipo_sentencia(tipo, preview_chars=250):
 
 
 def consulta_palabra(palabra, preview_chars=250):
+    palabra =  f'"{palabra}"'
     query = {'$text': {'$search': palabra}}
     res = list(mongo_col.find(query,
                               {'providencia': True, 'tipo': True,
@@ -601,3 +602,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
